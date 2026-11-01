@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Log in - Nebu</title>
+<meta name="theme-color" content="#08070d">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<main class="auth">
+  <div id="bg"></div>
+  <div class="box">
+    <a href="/" class="logo"><i></i>Nebu</a>
+    <div class="tabs"><button id="tLogin" type="button">Log in</button><button id="tSign" type="button">Sign up</button></div>
+
+    <form id="fLogin" hidden>
+      <label class="f" for="lg">Username or email</label>
+      <input id="lg" type="text" autocomplete="username" required>
+      <label class="f" for="lp">Password</label>
+      <input id="lp" type="password" autocomplete="current-password" required>
+      <div class="err" id="eLogin"></div>
+      <button class="btn primary" style="width:100%;margin-top:8px">Log in</button>
+    </form>
+
+    <form id="fSign" hidden>
+      <label class="f" for="su">Your name</label>
+      <div class="prefix"><span>nebu.app/</span><input id="su" type="text" maxlength="30" autocomplete="off" required></div>
+      <div class="hint" id="hSu"></div>
+      <label class="f" for="se">Email</label>
+      <input id="se" type="email" autocomplete="email" required>
+      <label class="f" for="sp">Password (8+ characters)</label>
+      <input id="sp" type="password" minlength="8" autocomplete="new-password" required>
+      <div class="err" id="eSign"></div>
+      <button class="btn primary" style="width:100%;margin-top:8px">Create my page</button>
+    </form>
+  </div>
+</main>
+<script src="/common.js"></script>
+<script src="/bg.js"></script>
+<script>
+NebuBG.mount(document.getElementById('bg'), { type: 'aurora' });
+const q = new URLSearchParams(location.search);
+const fL = document.getElementById('fLogin'), fS = document.getElementById('fSign');
+function mode(m) {
+  fL.hidden = m !== 'login'; fS.hidden = m !== 'signup';
+  document.getElementById('tLogin').classList.toggle('on', m === 'login');
+  document.getElementById('tSign').classList.toggle('on', m === 'signup');
+  document.title = (m === 'login' ? 'Log in' : 'Sign up') + ' - Nebu';
+}
+document.getElementById('tLogin').onclick = () => mode('login');
+document.getElementById('tSign').onclick = () => mode('signup');
+mode(q.get('mode') === 'signup' ? 'signup' : 'login');
+if (q.get('u')) document.getElementById('su').value = q.get('u');
+
+api('GET', '/api/me').then(({ user }) => { if (user) location.href = '/dashboard'; }).catch(() => {});
+
+const su = document.getElementById('su'), hSu = document.getElementById('hSu');
+const check = debounce(async () => {
+  const v = su.value.trim().toLowerCase();
+  if (!v) { hSu.textContent = ''; return; }
+  const r = await api('GET', '/api/check/' + encodeURIComponent(v)).catch(() => null);
+  if (!r) return;
+  hSu.textContent = r.available ? 'Available' : (r.reason || 'Not available');
+  hSu.className = 'hint ' + (r.available ? 'ok' : 'no');
+}, 250);
+su.addEventListener('input', check); if (su.value) check();
+
+fL.addEventListener('submit', async (e) => {
+  e.preventDefault(); const err = document.getElementById('eLogin'); err.textContent = '';
+  try { await api('POST', '/api/login', { login: lg.value, password: lp.value }); location.href = '/dashboard'; }
+  catch (x) { err.textContent = x.message; }
+});
+fS.addEventListener('submit', async (e) => {
+  e.preventDefault(); const err = document.getElementById('eSign'); err.textContent = '';
+  try { await api('POST', '/api/signup', { username: su.value, email: se.value, password: sp.value }); location.href = '/dashboard'; }
+  catch (x) { err.textContent = x.message; }
+});
+</script>
+</body>
+</html>

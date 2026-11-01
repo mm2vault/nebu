@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Nebu - The link-in-bio that glows</title>
+<meta name="description" content="Design a link-in-bio page you actually own: animated backgrounds, short names, badges, music and real analytics. Free.">
+<meta name="theme-color" content="#08070d">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<header class="nav"><div class="container">
+  <a href="/" class="logo"><i></i>Nebu</a>
+  <nav><a href="#features">Features</a><a href="#backgrounds">Backgrounds</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></nav>
+  <div class="acts" id="acts"><a class="btn sm" href="/login">Log in</a><a class="btn sm primary" href="/login?mode=signup">Sign up</a></div>
+</div></header>
+
+<section class="hero" style="padding-top:90px">
+  <div id="heroBg"></div>
+  <div class="container">
+    <div class="pill"><b>●</b> Short names, badges, live stats. Free to start.</div>
+    <h1 class="big">The link-in-bio<br>that <span>glows.</span></h1>
+    <p class="lead">One page for everything you make. Animated backgrounds, music, badges, a UID that's yours forever, and analytics that actually tell you what works.</p>
+    <form class="claim" id="claimForm" autocomplete="off">
+      <span>nebu.app/</span>
+      <input type="text" id="claimInput" placeholder="yourname" maxlength="30" aria-label="Pick your name">
+      <button class="btn primary" type="submit">Claim it</button>
+    </form>
+    <div class="claim-msg" id="claimMsg"></div>
+  </div>
+</section>
+
+<section id="features"><div class="container">
+  <div class="eyebrow">Everything on one page</div>
+  <h2 class="sec">Built like a profile, not a form.</h2>
+  <p class="muted" style="max-width:560px">Make your page yours with real design controls, then watch the numbers come in.</p>
+  <div class="grid3">
+    <div class="card"><div class="ic">✨</div><h3>Animated backgrounds</h3><p>Aurora, particles, stars, waves, a synthwave grid. Pick two colors and the engine does the rest.</p></div>
+    <div class="card"><div class="ic">🏷️</div><h3>Names, UIDs, badges</h3><p>Claim a short name. Every account gets a UID in signup order, and the first 250 earn the OG badge.</p></div>
+    <div class="card"><div class="ic">📊</div><h3>Real analytics</h3><p>Views, visitors, clicks, sources and devices. Bots and refresh spam are filtered out.</p></div>
+    <div class="card"><div class="ic">🎨</div><h3>Card looks &amp; fonts</h3><p>Glass, solid, outline or neon cards, seven fonts, your accent color, glow and typewriter effects.</p></div>
+    <div class="card"><div class="ic">🎵</div><h3>Background music</h3><p>Add an audio track that plays when visitors tap into your page, with a clean mute control.</p></div>
+    <div class="card"><div class="ic">🔗</div><h3>Smart links</h3><p>Drag-free reordering, pin your best link, hide the rest, and see how often each one gets tapped.</p></div>
+  </div>
+</div></section>
+
+<section id="backgrounds" style="background:linear-gradient(180deg,transparent,rgba(124,92,255,.06),transparent)"><div class="container showcase">
+  <div>
+    <div class="eyebrow">The engine</div>
+    <h2 class="sec">Backgrounds that move.</h2>
+    <p class="muted">This is the real renderer running live. Pick one, then change the colors.</p>
+    <div class="chips" id="bgChips"></div>
+    <div style="display:flex;gap:18px;margin-top:22px;align-items:center">
+      <label class="muted" style="font-size:13px;display:flex;gap:8px;align-items:center">Color 1 <input type="color" id="c1" value="#7c5cff"></label>
+      <label class="muted" style="font-size:13px;display:flex;gap:8px;align-items:center">Color 2 <input type="color" id="c2" value="#19d3c5"></label>
+    </div>
+  </div>
+  <div class="phone" id="phone"><div id="phoneBg"></div><div class="in"><div class="av">N</div><b>yourname</b><span style="font-size:12.5px;color:#d9d6ee">Creator · Gamer · Builder</span><div class="lk">My channel</div><div class="lk">Latest drop</div><div class="lk">Join the server</div></div></div>
+</div></section>
+
+<section id="pricing"><div class="container center">
+  <div class="eyebrow">Pricing</div>
+  <h2 class="sec">Free. Really.</h2>
+  <div class="card price">
+    <h3 style="font-size:20px">Nebu Free</h3>
+    <div style="font-size:44px;font-weight:800;letter-spacing:-.03em;margin-top:6px">$0 <span class="muted" style="font-size:15px;font-weight:500">forever</span></div>
+    <ul>
+      <li>Unlimited links</li><li>All animated backgrounds</li><li>Full analytics dashboard</li><li>Background music</li>
+      <li>Badges and a permanent UID</li><li>Custom fonts, card looks and effects</li>
+    </ul>
+    <a class="btn primary" style="width:100%" href="/login?mode=signup">Create your page</a>
+  </div>
+</div></section>
+
+<section id="faq" style="padding-top:20px"><div class="container">
+  <div class="center"><div class="eyebrow">Questions</div><h2 class="sec">Asked, answered.</h2></div>
+  <div class="faq">
+    <details><summary>What is Nebu?</summary><p>A link-in-bio page you design yourself. Pick a name, add your links, choose a background and card style, and share nebu.app/yourname anywhere.</p></details>
+    <details><summary>How are UIDs assigned?</summary><p>In the order accounts are created. UIDs 1 to 250 get the OG badge on their profile.</p></details>
+    <details><summary>Are the analytics accurate?</summary><p>Known bots are ignored, your own visits are not counted, and repeat refreshes from the same visitor within 30 minutes count once.</p></details>
+    <details><summary>Can I change my username?</summary><p>Yes, from the Customize tab, as long as the new name is free.</p></details>
+    <details><summary>Can I delete my account?</summary><p>Anytime from the dashboard. Your page, links and stats are removed immediately.</p></details>
+  </div>
+</div></section>
+
+<footer><div class="container"><div class="logo"><i></i>Nebu</div><div>© <span id="yr"></span> Nebu. Make some noise.</div></div></footer>
+
+<script src="/common.js"></script>
+<script src="/bg.js"></script>
+<script>
+document.getElementById('yr').textContent = new Date().getFullYear();
+NebuBG.mount(document.getElementById('heroBg'), { type: 'aurora' });
+
+// swap nav buttons if signed in
+api('GET', '/api/me').then(({ user }) => {
+  if (user) document.getElementById('acts').innerHTML = '<a class="btn sm" href="/' + esc(user.username) + '">My page</a><a class="btn sm primary" href="/dashboard">Dashboard</a>';
+}).catch(() => {});
+
+// name claim
+const input = document.getElementById('claimInput'), msg = document.getElementById('claimMsg');
+const check = debounce(async () => {
+  const v = input.value.trim().toLowerCase();
+  if (!v) { msg.textContent = ''; msg.className = 'claim-msg'; return; }
+  try {
+    const r = await api('GET', '/api/check/' + encodeURIComponent(v));
+    msg.textContent = r.available ? 'nebu.app/' + v + ' is available' : (r.reason || 'Not available');
+    msg.className = 'claim-msg ' + (r.available ? 'ok' : 'no');
+  } catch { /* ignore */ }
+}, 250);
+input.addEventListener('input', check);
+document.getElementById('claimForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const v = input.value.trim().toLowerCase();
+  location.href = '/login?mode=signup' + (v ? '&u=' + encodeURIComponent(v) : '');
+});
+
+// background showcase
+const types = ['aurora', 'particles', 'stars', 'waves', 'grid', 'gradient'];
+const chips = document.getElementById('bgChips');
+const inst = NebuBG.mount(document.getElementById('phoneBg'), { type: 'particles' });
+let cur = 'particles';
+types.forEach((t) => {
+  const b = document.createElement('button'); b.className = 'chip' + (t === cur ? ' on' : ''); b.textContent = t;
+  b.onclick = () => { cur = t; inst.update({ type: t }); [...chips.children].forEach((c) => c.classList.toggle('on', c === b)); };
+  chips.appendChild(b);
+});
+document.getElementById('c1').oninput = (e) => inst.update({ color1: e.target.value });
+document.getElementById('c2').oninput = (e) => inst.update({ color2: e.target.value });
+</script>
+</body>
+</html>

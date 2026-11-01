@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard - Nebu</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#08070d">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/app.css">
+<style>
+body{overflow-x:hidden}
+.shell{display:grid;grid-template-columns:220px minmax(0,1fr) 340px;min-height:100vh}
+aside.side{border-right:1px solid var(--line);padding:22px 14px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;gap:6px;background:var(--bg2)}
+aside .logo{padding:0 10px 18px}
+.nv{display:flex;gap:11px;align-items:center;padding:11px 12px;border-radius:11px;border:0;background:transparent;color:var(--muted);cursor:pointer;font-weight:600;font-size:14.5px;text-align:left;width:100%}
+.nv:hover{background:rgba(255,255,255,.05);color:var(--text)}
+.nv.on{background:rgba(124,92,255,.16);color:var(--text)}
+.side .sp{flex:1}
+main.main{padding:30px 34px 90px;min-width:0}
+main h2{font-size:26px;letter-spacing:-.02em;margin-bottom:4px}
+main .sub{color:var(--muted);font-size:14.5px;margin-bottom:24px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:18px;padding:22px;margin-bottom:18px}
+.panel h3{font-size:15.5px;margin-bottom:4px}
+.panel .d{color:var(--muted);font-size:13.5px;margin-bottom:6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px 18px}
+.stat b{display:block;font-size:28px;letter-spacing:-.03em}
+.stat span{color:var(--muted);font-size:13px}
+.urlbox{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.urlbox code{flex:1;min-width:0;padding:11px 14px;background:rgba(255,255,255,.05);border-radius:11px;border:1px solid var(--line);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14.5px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.colors{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+.colors label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted);font-weight:600}
+input[type=color]{width:100%;height:42px;padding:3px;border-radius:10px;border:1px solid var(--line2);background:transparent;cursor:pointer}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.chip{padding:8px 15px;border-radius:99px;border:1px solid var(--line2);background:transparent;cursor:pointer;font-size:13.5px;font-weight:600;color:var(--muted);text-transform:capitalize}
+.chip.on{background:var(--grad);color:#08070d;border-color:transparent}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);font-size:14.5px}
+.toggle:last-child{border-bottom:0}
+.sw{position:relative;width:44px;height:25px;flex:none}
+.sw input{opacity:0;position:absolute;inset:0;cursor:pointer;z-index:2;margin:0}
+.sw i{position:absolute;inset:0;border-radius:99px;background:rgba(255,255,255,.14);transition:.18s}
+.sw i::after{content:'';position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:.18s}
+.sw input:checked+i{background:var(--p)}.sw input:checked+i::after{transform:translateX(19px)}
+.savebar{position:fixed;left:220px;right:340px;bottom:0;padding:14px 34px;display:flex;justify-content:space-between;align-items:center;background:rgba(16,14,24,.92);backdrop-filter:blur(12px);border-top:1px solid var(--line);z-index:10;transform:translateY(110%);transition:.25s}
+.savebar.show{transform:none}
+.link{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 14px;margin-bottom:10px}
+.link.off{opacity:.55}
+.link .mv{display:flex;flex-direction:column;gap:2px}
+.link .mv button{border:0;background:rgba(255,255,255,.06);color:var(--muted);border-radius:6px;width:24px;height:20px;cursor:pointer;font-size:11px}
+.link .mv button:hover{color:var(--text);background:rgba(255,255,255,.12)}
+.link .body{min-width:0;display:grid;gap:6px}
+.link .body input{padding:8px 11px;font-size:14px}
+.link .acts{display:flex;gap:6px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.clicks{font-size:12.5px;color:var(--muted);padding:0 6px}
+.ib{border:1px solid var(--line2);background:transparent;border-radius:9px;padding:6px 9px;cursor:pointer;font-size:13px}
+.ib:hover{background:rgba(255,255,255,.08)}.ib.on{background:rgba(124,92,255,.25);border-color:var(--p)}
+.addrow{display:grid;grid-template-columns:1fr 1.3fr auto;gap:10px}
+.preview{border-left:1px solid var(--line);padding:22px 20px;position:sticky;top:0;height:100vh;display:flex;flex-direction:column;align-items:center;gap:12px;background:var(--bg2)}
+.preview .lbl{font-size:12px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.frame{width:100%;max-width:300px;flex:1;max-height:620px;border-radius:30px;border:1px solid var(--line2);overflow:hidden;background:#000;box-shadow:0 30px 70px -30px rgba(124,92,255,.5)}
+.frame iframe{width:100%;height:100%;border:0}
+.charts{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.bars .r{display:grid;grid-template-columns:110px 1fr 40px;gap:10px;align-items:center;font-size:13.5px;margin:9px 0}
+.bars .r div.t{height:8px;background:rgba(255,255,255,.07);border-radius:9px;overflow:hidden}
+.bars .r div.t i{display:block;height:100%;background:var(--grad);border-radius:9px}
+.bars .r span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.badge{display:inline-block;font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;background:rgba(124,92,255,.18);border:1px solid rgba(124,92,255,.5);margin:0 8px 8px 0}
+.check{display:flex;gap:10px;align-items:center;font-size:14.5px;padding:7px 0}.check i{font-style:normal;width:20px;height:20px;border-radius:50%;display:grid;place-items:center;font-size:12px;border:1.5px solid var(--line2)}.check.done i{background:var(--ok);border-color:var(--ok);color:#08070d}
+.mobbar{display:none}
+@media(max-width:1180px){.shell{grid-template-columns:200px minmax(0,1fr)}.preview{display:none}.savebar{right:0}}
+@media(max-width:760px){
+  .shell{grid-template-columns:1fr}aside.side{position:fixed;bottom:0;top:auto;left:0;right:0;height:auto;flex-direction:row;padding:6px;z-index:30;border-top:1px solid var(--line);border-right:0;justify-content:space-around}
+  aside .logo,.side .sp{display:none}.nv{flex-direction:column;gap:2px;font-size:11.5px;padding:8px 10px;width:auto;align-items:center}
+  main.main{padding:22px 16px 140px}.savebar{left:0;padding:12px 16px;bottom:62px}.row2,.charts,.addrow,.colors{grid-template-columns:1fr 1fr}.addrow{grid-template-columns:1fr}.charts{grid-template-columns:1fr}.row2{grid-template-columns:1fr}
+  .link{grid-template-columns:auto 1fr}.link .acts{grid-column:1/-1;justify-content:flex-start}
+}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="side">
+  <a href="/" class="logo"><i></i>Nebu</a>
+  <button class="nv on" data-tab="overview"><span>🏠</span>Overview</button>
+  <button class="nv" data-tab="customize"><span>🎨</span>Customize</button>
+  <button class="nv" data-tab="links"><span>🔗</span>Links</button>
+  <button class="nv" data-tab="analytics"><span>📊</span>Analytics</button>
+  <div class="sp"></div>
+  <button class="nv" id="logout"><span>🚪</span>Log out</button>
+</aside>
+
+<main class="main">
+  <!-- OVERVIEW -->
+  <section data-pane="overview">
+    <h2 id="hello">Overview</h2><p class="sub">Your address, your numbers, and what's left to set up.</p>
+    <div class="panel"><h3>Your page</h3><div class="d">Share this link anywhere.</div>
+      <div class="urlbox"><code id="myUrl"></code><button class="btn sm primary" id="copyUrl">Copy</button><a class="btn sm" id="openUrl" target="_blank" rel="noopener">Open</a></div></div>
+    <div class="stats" id="ovStats"></div>
+    <div class="row2">
+      <div class="panel"><h3>Setup checklist</h3><div id="checklist"></div></div>
+      <div class="panel"><h3>Your badges</h3><div class="d" id="uidLine"></div><div id="badgeList"></div></div>
+    </div>
+    <div class="panel"><h3>Danger zone</h3><div class="d">Deleting your account removes your page, links and stats immediately. This cannot be undone.</div><button class="btn danger sm" id="delAcc">Delete account</button></div>
+  </section>
+
+  <!-- CUSTOMIZE -->
+  <section data-pane="customize" hidden>
+    <h2>Customize</h2><p class="sub">Changes show in the preview right away. Hit Save to publish.</p>
+    <div class="panel"><h3>You</h3>
+      <div class="row2"><div><label class="f">Display name</label><input type="text" data-k="displayName" maxlength="40"></div>
+      <div><label class="f">Location</label><input type="text" data-k="location" maxlength="40" placeholder="Baku, AZ"></div></div>
+      <label class="f">Bio</label><textarea data-k="bio" maxlength="200" placeholder="Tell people who you are"></textarea>
+      <div class="row2"><div><label class="f">Avatar image URL (https)</label><input type="url" data-k="avatar" placeholder="https://..."></div>
+      <div><label class="f">Discord tag</label><input type="text" data-k="discord" maxlength="40" placeholder="name"></div></div>
+    </div>
+    <div class="panel"><h3>Username</h3><div class="d">Changing it changes your page address.</div>
+      <div class="urlbox"><div class="prefix" style="flex:1"><span>nebu.app/</span><input type="text" id="newName" maxlength="30"></div><button class="btn sm" id="saveName">Change</button></div></div>
+    <div class="panel"><h3>Background</h3>
+      <div class="chips" id="bgChips"></div>
+      <label class="f">Colors</label>
+      <div class="colors">
+        <label>Color 1<input type="color" data-k="color1"></label><label>Color 2<input type="color" data-k="color2"></label>
+        <label>Accent<input type="color" data-k="accent"></label><label>Text<input type="color" data-k="text"></label>
+      </div></div>
+    <div class="panel"><h3>Card &amp; text</h3>
+      <div class="row2"><div><label class="f">Card look</label><select data-k="card"><option value="glass">Glass</option><option value="solid">Solid</option><option value="outline">Outline</option><option value="neon">Neon</option></select></div>
+      <div><label class="f">Font</label><select data-k="font"></select></div></div>
+      <div style="margin-top:12px">
+        <div class="toggle">Glow on your name<span class="sw"><input type="checkbox" data-k="glow"><i></i></span></div>
+        <div class="toggle">Typewriter bio<span class="sw"><input type="checkbox" data-k="typewriter"><i></i></span></div>
+        <div class="toggle">Show view counter<span class="sw"><input type="checkbox" data-k="views"><i></i></span></div>
+      </div></div>
+    <div class="panel"><h3>Music</h3><div class="d">Direct link to an audio file (.mp3, .ogg, .wav). Visitors tap "click to enter" and it plays.</div>
+      <input type="url" data-k="music" placeholder="https://example.com/track.mp3"></div>
+  </section>
+
+  <!-- LINKS -->
+  <section data-pane="links" hidden>
+    <h2>Links</h2><p class="sub">Reorder with the arrows, pin your best one, hide what you don't want shown.</p>
+    <div class="panel"><form class="addrow" id="addForm"><input type="text" id="nlTitle" placeholder="Title" maxlength="80" required><input type="text" id="nlUrl" placeholder="https://..." required><button class="btn primary">Add link</button></form></div>
+    <div id="linkList"></div>
+  </section>
+
+  <!-- ANALYTICS -->
+  <section data-pane="analytics" hidden>
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap"><div><h2>Analytics</h2><p class="sub">Bots, your own visits and repeat refreshes are left out.</p></div>
+      <select id="range" style="width:auto"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></div>
+    <div class="stats" id="anStats"></div>
+    <div class="panel"><h3>Views &amp; clicks</h3><div id="chart" style="margin-top:10px"></div></div>
+    <div class="charts">
+      <div class="panel"><h3>Where visitors come from</h3><div class="bars" id="srcBars"></div></div>
+      <div class="panel"><h3>Devices</h3><div class="bars" id="devBars"></div></div>
+    </div>
+    <div class="panel"><h3>Top links</h3><div class="bars" id="topBars"></div></div>
+  </section>
+</main>
+
+<aside class="preview"><div class="lbl">Live preview</div><div class="frame"><iframe id="pv" title="Preview"></iframe></div></aside>
+</div>
+
+<div class="savebar" id="savebar"><span class="muted">You have unsaved changes</span><div style="display:flex;gap:10px"><button class="btn sm" id="revert">Revert</button><button class="btn sm primary" id="save">Save changes</button></div></div>
+
+<script src="/common.js"></script>
+<script src="/bg.js"></script>
+<script>
+(function () {
+  const $ = (s) => document.querySelector(s);
+  const FONTS = ['Inter', 'Space Grotesk', 'JetBrains Mono', 'Playfair Display', 'Press Start 2P', 'Caveat', 'Outfit'];
+  const BGS = ['aurora', 'particles', 'grid', 'gradient', 'stars', 'waves', 'solid'];
+  let me = null, saved = null, draft = null, links = [], pvReady = false;
+
+  // ---------- tabs ----------
+  function tab(name) {
+    document.querySelectorAll('[data-pane]').forEach((p) => { p.hidden = p.dataset.pane !== name; });
+    document.querySelectorAll('.nv[data-tab]').forEach((b) => b.classList.toggle('on', b.dataset.tab === name));
+    if (name === 'analytics') loadAnalytics();
+    if (name === 'overview') loadOverview();
+    if (location.hash !== '#' + name) history.replaceState(null, '', '#' + name);
+  }
+  document.querySelectorAll('.nv[data-tab]').forEach((b) => b.onclick = () => tab(b.dataset.tab));
+
+  // ---------- preview ----------
+  const pv = $('#pv');
+  function pushPreview() {
+    if (!pvReady || !draft) return;
+    pv.contentWindow.postMessage({ nebuPreview: { username: me.username, uid: me.uid, badges: me.badges, views: 0, profile: draft, links: links.filter((l) => !l.hidden).map((l) => ({ id: l.id, title: l.title, pinned: l.pinned })) } }, location.origin);
+  }
+  window.addEventListener('message', (e) => { if (e.origin === location.origin && e.data && e.data.nebuReady) { pvReady = true; pushPreview(); } });
+
+  // ---------- draft state ----------
+  const dirty = () => JSON.stringify(draft) !== JSON.stringify(saved);
+  function touch() { $('#savebar').classList.toggle('show', dirty()); pushPreview(); }
+  function fillForm() {
+    document.querySelectorAll('[data-k]').forEach((el) => {
+      const k = el.dataset.k;
+      if (el.type === 'checkbox') el.checked = !!draft[k]; else el.value = draft[k] ?? '';
+    });
+    document.querySelectorAll('#bgChips .chip').forEach((c) => c.classList.toggle('on', c.dataset.v === draft.bg));
+  }
+  document.querySelectorAll('[data-k]').forEach((el) => {
+    const h = () => { draft[el.dataset.k] = el.type === 'checkbox' ? el.checked : el.value; touch(); };
+    el.addEventListener(el.tagName === 'SELECT' || el.type === 'checkbox' || el.type === 'color' ? 'input' : 'input', h);
+  });
+  const sel = $('select[data-k=font]'); FONTS.forEach((f) => { const o = document.createElement('option'); o.value = f; o.textContent = f; sel.appendChild(o); });
+  BGS.forEach((b) => { const c = document.createElement('button'); c.type = 'button'; c.className = 'chip'; c.dataset.v = b; c.textContent = b; c.onclick = () => { draft.bg = b; fillForm(); touch(); }; $('#bgChips').appendChild(c); });
+
+  $('#save').onclick = async () => {
+    try { const r = await api('PUT', '/api/profile', draft); saved = { ...r.profile }; draft = { ...r.profile }; fillForm(); touch(); toast('Saved'); loadOverview(); }
+    catch (e) { toast(e.message, true); }
+  };
+  $('#revert').onclick = () => { draft = { ...saved }; fillForm(); touch(); };
+  window.addEventListener('beforeunload', (e) => { if (draft && dirty()) { e.preventDefault(); e.returnValue = ''; } });
+
+  $('#saveName').onclick = async () => {
+    try { const r = await api('PUT', '/api/username', { username: $('#newName').value }); me.username = r.username; paintUrl(); toast('Username updated'); pv.src = '/' + me.username + '?preview=1'; pvReady = false; }
+    catch (e) { toast(e.message, true); }
+  };
+
+  // ---------- overview ----------
+  function paintUrl() {
+    const url = location.origin + '/' + me.username;
+    $('#myUrl').textContent = url; $('#openUrl').href = url; $('#newName').value = me.username;
+    $('#hello').textContent = 'Hey, ' + (draft && draft.displayName ? draft.displayName : me.username);
+  }
+  $('#copyUrl').onclick = () => navigator.clipboard.writeText($('#myUrl').textContent).then(() => toast('Link copied'), () => toast('Copy failed', true));
+  async function loadOverview() {
+    const [a, l] = await Promise.all([api('GET', '/api/analytics?days=30'), api('GET', '/api/links')]);
+    links = l.links; renderLinks();
+    $('#ovStats').innerHTML = [['Total views', a.totals.allTimeViews], ['Views (30d)', a.totals.views], ['Clicks (30d)', a.totals.clicks], ['Links', links.length]]
+      .map(([n, v]) => `<div class="stat"><b>${v}</b><span>${n}</span></div>`).join('');
+    const p = saved || {};
+    const steps = [['Add a bio', !!p.bio], ['Upload an avatar', !!p.avatar], ['Add 3 or more links', links.length >= 3], ['Pick a custom look', p.bg !== 'aurora' || p.color1 !== '#7c5cff'], ['Add music', !!p.music]];
+    $('#checklist').innerHTML = steps.map(([t, d]) => `<div class="check ${d ? 'done' : ''}"><i>${d ? '✓' : ''}</i>${esc(t)}</div>`).join('');
+    $('#uidLine').textContent = 'Your UID is ' + me.uid + '. UIDs 1 to 250 get the OG badge.';
+    $('#badgeList').innerHTML = me.badges.length ? me.badges.map((b) => `<span class="badge" title="${esc(b.hint)}">${esc(b.label)}</span>`).join('') : '<span class="muted" style="font-size:13.5px">No badges yet. Keep building.</span>';
+  }
+
+  // ---------- links ----------
+  function renderLinks() {
+    const box = $('#linkList');
+    if (!links.length) { box.innerHTML = '<div class="panel muted center" style="text-align:center">No links yet. Add your first one above.</div>'; return; }
+    box.innerHTML = '';
+    links.forEach((l, i) => {
+      const d = document.createElement('div'); d.className = 'link' + (l.hidden ? ' off' : '');
+      d.innerHTML = `<div class="mv"><button data-a="up" aria-label="Move up">▲</button><button data-a="down" aria-label="Move down">▼</button></div>
+        <div class="body"><input type="text" value="${esc(l.title)}" data-f="title" maxlength="80"><input type="text" value="${esc(l.url)}" data-f="url"></div>
+        <div class="acts"><span class="clicks">${l.clicks} clicks</span>
+          <button class="ib ${l.pinned ? 'on' : ''}" data-a="pin" title="Pin to top">📌</button>
+          <button class="ib" data-a="hide" title="${l.hidden ? 'Show' : 'Hide'}">${l.hidden ? '🙈' : '👁'}</button>
+          <button class="ib" data-a="del" title="Delete">🗑</button></div>`;
+      d.querySelectorAll('input').forEach((inp) => inp.addEventListener('change', async () => {
+        try { const r = await api('PUT', '/api/links/' + l.id, { [inp.dataset.f]: inp.value }); Object.assign(l, r.link); inp.value = l[inp.dataset.f]; pushPreview(); toast('Link saved'); }
+        catch (e) { inp.value = l[inp.dataset.f]; toast(e.message, true); }
+      }));
+      d.addEventListener('click', async (ev) => {
+        const a = ev.target.dataset && ev.target.dataset.a; if (!a) return;
+        try {
+          if (a === 'del') { if (!confirm('Delete this link?')) return; await api('DELETE', '/api/links/' + l.id); links.splice(i, 1); }
+          else if (a === 'hide') { const r = await api('PUT', '/api/links/' + l.id, { hidden: !l.hidden }); Object.assign(l, r.link); }
+          else if (a === 'pin') { const r = await api('PUT', '/api/links/' + l.id, { pinned: !l.pinned }); Object.assign(l, r.link); links.sort((x, y) => (y.pinned - x.pinned) || (x.position - y.position)); }
+          else { const j = a === 'up' ? i - 1 : i + 1; if (j < 0 || j >= links.length) return; [links[i], links[j]] = [links[j], links[i]]; await api('PUT', '/api/links/reorder', { ids: links.map((x) => x.id) }); links.forEach((x, n) => { x.position = n; }); }
+          renderLinks(); pushPreview();
+        } catch (e) { toast(e.message, true); }
+      });
+      box.appendChild(d);
+    });
+  }
+  $('#addForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    try { const r = await api('POST', '/api/links', { title: $('#nlTitle').value, url: $('#nlUrl').value }); links.push(r.link); $('#nlTitle').value = ''; $('#nlUrl').value = ''; renderLinks(); pushPreview(); toast('Link added'); }
+    catch (x) { toast(x.message, true); }
+  });
+
+  // ---------- analytics ----------
+  function bars(el, rows, key) {
+    const max = Math.max(1, ...rows.map((r) => r[key]));
+    el.innerHTML = rows.length ? rows.map((r) => `<div class="r"><span title="${esc(r.name || r.title)}">${esc(r.name || r.title)}</span><div class="t"><i style="width:${(r[key] / max) * 100}%"></i></div><span style="text-align:right">${r[key]}</span></div>`).join('') : '<div class="muted" style="font-size:13.5px;margin-top:8px">No data yet.</div>';
+  }
+  function lineChart(series) {
+    const W = 760, H = 220, P = 28, n = series.length;
+    const max = Math.max(3, ...series.map((s) => Math.max(s.views, s.clicks)));
+    const x = (i) => P + (i / Math.max(1, n - 1)) * (W - P * 2), y = (v) => H - P - (v / max) * (H - P * 2);
+    const path = (k) => series.map((s, i) => (i ? 'L' : 'M') + x(i).toFixed(1) + ' ' + y(s[k]).toFixed(1)).join(' ');
+    const grid = [0, .5, 1].map((f) => { const v = Math.round(max * f), yy = y(v); return `<line x1="${P}" x2="${W - P}" y1="${yy}" y2="${yy}" stroke="rgba(255,255,255,.08)"/><text x="4" y="${yy + 4}" fill="#a09db5" font-size="11">${v}</text>`; }).join('');
+    const lbl = [0, Math.floor((n - 1) / 2), n - 1].map((i) => `<text x="${x(i)}" y="${H - 6}" fill="#a09db5" font-size="11" text-anchor="${i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle'}">${series[i].date.slice(5)}</text>`).join('');
+    $('#chart').innerHTML = `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto" role="img" aria-label="Views and clicks over time">${grid}
+      <path d="${path('views')}" fill="none" stroke="#7c5cff" stroke-width="2.5" stroke-linejoin="round"/><path d="${path('clicks')}" fill="none" stroke="#19d3c5" stroke-width="2.5" stroke-linejoin="round"/>${lbl}</svg>
+      <div style="display:flex;gap:18px;font-size:13px;color:var(--muted);margin-top:6px"><span><b style="color:#7c5cff">●</b> Views</span><span><b style="color:#19d3c5">●</b> Clicks</span></div>`;
+  }
+  async function loadAnalytics() {
+    try {
+      const a = await api('GET', '/api/analytics?days=' + $('#range').value);
+      $('#anStats').innerHTML = [['Views', a.totals.views], ['Visitors', a.totals.visitors], ['Clicks', a.totals.clicks], ['Click rate', a.totals.ctr + '%']].map(([n, v]) => `<div class="stat"><b>${v}</b><span>${n}</span></div>`).join('');
+      lineChart(a.series); bars($('#srcBars'), a.sources, 'count'); bars($('#devBars'), a.devices, 'count'); bars($('#topBars'), a.topLinks, 'clicks');
+    } catch (e) { toast(e.message, true); }
+  }
+  $('#range').onchange = loadAnalytics;
+
+  // ---------- account ----------
+  $('#logout').onclick = async () => { await api('POST', '/api/logout'); location.href = '/'; };
+  $('#delAcc').onclick = async () => {
+    if (prompt('Type your username to permanently delete your account:') !== me.username) return;
+    try { draft = { ...saved }; await api('DELETE', '/api/account'); location.href = '/'; } catch (e) { toast(e.message, true); }
+  };
+
+  // ---------- boot ----------
+  (async function () {
+    try {
+      const r = await api('GET', '/api/me');
+      if (!r.user) { location.href = '/login'; return; }
+      me = r.user; saved = { ...me.profile }; draft = { ...me.profile };
+      fillForm(); paintUrl();
+      pv.src = '/' + me.username + '?preview=1';
+      await loadOverview();
+      const h = location.hash.slice(1); if (['overview', 'customize', 'links', 'analytics'].includes(h)) tab(h);
+    } catch (e) { location.href = '/login'; }
+  })();
+})();
+</script>
+</body>
+</html>

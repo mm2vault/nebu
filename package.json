@@ -1,0 +1,13 @@
+{
+  "name": "nebu",
+  "version": "1.0.0",
+  "description": "Nebu - link-in-bio platform with animated profiles, dashboard and analytics",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {}
+}

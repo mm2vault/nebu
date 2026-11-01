@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Nebu</title>
+<meta name="theme-color" content="#08070d">
+<meta name="robots" content="index,follow">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<style>
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+:root{--text:#f4f3ff;--accent:#a78bfa;--c1:#7c5cff;--c2:#19d3c5}
+html,body{height:100%}
+body{background:#08070d;color:var(--text);font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+#bg{position:fixed;inset:0}
+main{position:relative;z-index:2;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 18px 70px}
+.card{width:min(440px,100%);padding:30px 24px 26px;border-radius:26px;text-align:center;position:relative;animation:rise .7s cubic-bezier(.2,.8,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
+.card.glass{background:rgba(18,15,30,.45);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px)}
+.card.solid{background:#120f1e;border:1px solid rgba(255,255,255,.08)}
+.card.outline{background:transparent;border:2px solid var(--accent)}
+.card.neon{background:rgba(8,7,13,.7);border:2px solid var(--accent);box-shadow:0 0 18px var(--accent),inset 0 0 18px color-mix(in srgb,var(--accent) 30%,transparent)}
+.av{width:104px;height:104px;border-radius:50%;margin:0 auto 14px;background:linear-gradient(135deg,var(--c1),var(--c2));display:grid;place-items:center;font-size:42px;font-weight:800;color:#08070d;overflow:hidden;border:3px solid rgba(255,255,255,.18)}
+.av img{width:100%;height:100%;object-fit:cover}
+h1{font-size:28px;letter-spacing:-.02em;line-height:1.15;word-break:break-word}
+h1.glow{text-shadow:0 0 14px var(--accent),0 0 38px var(--accent)}
+.handle{color:color-mix(in srgb,var(--text) 60%,transparent);font-size:14px;margin-top:4px}
+.badges{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin:12px 0 2px}
+.badge{font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:99px;background:color-mix(in srgb,var(--accent) 22%,transparent);border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);letter-spacing:.03em}
+.bio{margin:14px auto 0;max-width:340px;font-size:15px;color:color-mix(in srgb,var(--text) 88%,transparent);min-height:1.4em;white-space:pre-wrap;word-break:break-word}
+.bio.tw::after{content:'▌';margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.meta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;font-size:12.5px;color:color-mix(in srgb,var(--text) 62%,transparent);margin-top:12px}
+.links{display:grid;gap:11px;margin-top:22px}
+.links a{display:flex;align-items:center;justify-content:center;gap:8px;padding:15px 16px;border-radius:15px;font-weight:600;font-size:15px;color:var(--text);text-decoration:none;word-break:break-word;
+  background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);transition:.18s;animation:rise .6s both}
+.links a:hover{transform:translateY(-2px) scale(1.012);background:color-mix(in srgb,var(--accent) 28%,transparent);border-color:var(--accent);box-shadow:0 10px 30px -12px var(--accent)}
+.card.solid .links a{background:#1b1730}.card.outline .links a{background:transparent;border-color:color-mix(in srgb,var(--accent) 60%,transparent)}
+.card.neon .links a:hover{box-shadow:0 0 22px var(--accent)}
+.pin::before{content:'📌';font-size:13px}
+.views{position:fixed;left:14px;bottom:14px;z-index:5;font-size:12.5px;padding:6px 12px;border-radius:99px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px)}
+.brand{position:fixed;right:14px;bottom:14px;z-index:5;font-size:12.5px;padding:6px 12px;border-radius:99px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.12);backdrop-filter:blur(8px);color:#fff;text-decoration:none;font-weight:600}
+.mute{position:fixed;right:14px;top:14px;z-index:5;width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.18);background:rgba(0,0,0,.45);color:#fff;cursor:pointer;font-size:17px;backdrop-filter:blur(8px)}
+.enter{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:#08070d;cursor:pointer;transition:opacity .5s}
+.enter.gone{opacity:0;pointer-events:none}
+.enter span{font-size:20px;letter-spacing:.3em;text-transform:uppercase;color:#cfcbe8;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+.empty{color:rgba(255,255,255,.5);font-size:14px;margin-top:20px}
+body.preview .views,body.preview .brand{display:none}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="bg"></div>
+<div class="enter" id="enter" hidden><span>click to enter</span></div>
+<button class="mute" id="mute" hidden aria-label="Toggle music">🔊</button>
+<main><div class="card glass" id="card">
+  <div class="av" id="av"></div>
+  <h1 id="name"></h1>
+  <div class="handle" id="handle"></div>
+  <div class="badges" id="badges"></div>
+  <div class="bio" id="bio"></div>
+  <div class="meta" id="meta"></div>
+  <div class="links" id="links"></div>
+</div></main>
+<div class="views" id="views" hidden></div>
+<a class="brand" href="/">Made with Nebu</a>
+<audio id="audio" loop preload="none"></audio>
+<script src="/bg.js"></script>
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const isPreview = new URLSearchParams(location.search).has('preview');
+  if (isPreview) document.body.classList.add('preview');
+  const username = location.pathname.replace(/^\/+|\/+$/g, '').toLowerCase();
+  let bgInst = null, twTimer = 0, loadedFont = '', musicSrc = '';
+
+  function loadFont(f) {
+    if (!f || f === loadedFont || f === 'Inter') { loadedFont = f; return; }
+    loadedFont = f;
+    const l = document.createElement('link'); l.rel = 'stylesheet';
+    l.href = 'https://fonts.googleapis.com/css2?family=' + encodeURIComponent(f).replace(/%20/g, '+') + '&display=swap';
+    document.head.appendChild(l);
+  }
+  function typewrite(el, text) {
+    clearInterval(twTimer); el.textContent = ''; el.classList.add('tw'); let i = 0;
+    twTimer = setInterval(() => { el.textContent = text.slice(0, ++i); if (i >= text.length) { clearInterval(twTimer); setTimeout(() => el.classList.remove('tw'), 2500); } }, 38);
+  }
+  function render(d) {
+    const p = d.profile;
+    const root = document.documentElement.style;
+    root.setProperty('--text', p.text); root.setProperty('--accent', p.accent); root.setProperty('--c1', p.color1); root.setProperty('--c2', p.color2);
+    loadFont(p.font);
+    document.body.style.fontFamily = `'${p.font}', system-ui, sans-serif`;
+    const dn = p.displayName || d.username;
+    document.title = dn + ' (@' + d.username + ') - Nebu';
+    const card = $('card'); card.className = 'card ' + p.card;
+    // avatar
+    const av = $('av'); av.textContent = '';
+    if (p.avatar) { const im = document.createElement('img'); im.alt = ''; im.referrerPolicy = 'no-referrer'; im.src = p.avatar; im.onerror = () => { av.textContent = dn[0].toUpperCase(); }; av.appendChild(im); }
+    else av.textContent = dn[0].toUpperCase();
+    const h = $('name'); h.textContent = dn; h.className = p.glow ? 'glow' : '';
+    $('handle').textContent = '@' + d.username + ' · UID ' + d.uid;
+    const bd = $('badges'); bd.textContent = '';
+    (d.badges || []).forEach((b) => { const s = document.createElement('span'); s.className = 'badge'; s.textContent = b.label; s.title = b.hint; bd.appendChild(s); });
+    const bio = $('bio');
+    if (bio.dataset.t !== p.bio + '|' + p.typewriter) {
+      bio.dataset.t = p.bio + '|' + p.typewriter;
+      if (p.typewriter && p.bio) typewrite(bio, p.bio); else { clearInterval(twTimer); bio.classList.remove('tw'); bio.textContent = p.bio; }
+    }
+    const meta = $('meta'); meta.textContent = '';
+    if (p.location) { const s = document.createElement('span'); s.textContent = '📍 ' + p.location; meta.appendChild(s); }
+    if (p.discord) { const s = document.createElement('span'); s.textContent = '💬 ' + p.discord; meta.appendChild(s); }
+    const ls = $('links'); ls.textContent = '';
+    (d.links || []).forEach((l, i) => {
+      const a = document.createElement('a');
+      a.textContent = l.title; a.style.animationDelay = (0.15 + i * 0.06) + 's';
+      if (l.pinned) a.classList.add('pin');
+      if (isPreview) { a.href = '#'; a.onclick = (e) => e.preventDefault(); } else { a.href = '/go/' + l.id; a.rel = 'noopener nofollow'; }
+      ls.appendChild(a);
+    });
+    if (!d.links || !d.links.length) { const e = document.createElement('div'); e.className = 'empty'; e.textContent = 'No links yet.'; ls.appendChild(e); }
+    const v = $('views');
+    if (p.views && !isPreview) { v.hidden = false; v.textContent = '👁 ' + (d.views || 0).toLocaleString(); } else v.hidden = true;
+    if (!bgInst) bgInst = NebuBG.mount($('bg'), { type: p.bg, color1: p.color1, color2: p.color2 });
+    else bgInst.update({ type: p.bg, color1: p.color1, color2: p.color2 });
+    setupMusic(p.music);
+  }
+  function setupMusic(src) {
+    const a = $('audio'), m = $('mute'), en = $('enter');
+    if (!src) { a.pause(); a.removeAttribute('src'); m.hidden = true; en.hidden = true; musicSrc = ''; return; }
+    if (src === musicSrc) return;
+    musicSrc = src; a.src = src; m.hidden = false;
+    if (isPreview) { m.hidden = true; return; }
+    en.hidden = false; en.classList.remove('gone');
+    en.onclick = () => { en.classList.add('gone'); setTimeout(() => { en.hidden = true; }, 500); a.volume = .6; a.play().catch(() => {}); m.textContent = '🔊'; };
+    m.onclick = () => { if (a.paused) { a.play().catch(() => {}); m.textContent = '🔊'; } else { a.pause(); m.textContent = '🔇'; } };
+  }
+
+  if (isPreview) {
+    window.addEventListener('message', (e) => { if (e.origin === location.origin && e.data && e.data.nebuPreview) render(e.data.nebuPreview); });
+    parent.postMessage({ nebuReady: true }, location.origin);
+  } else {
+    fetch('/api/public/' + encodeURIComponent(username)).then((r) => r.json()).then((d) => {
+      if (d.error) { location.href = '/404'; return; }
+      render(d);
+      fetch('/api/view/' + encodeURIComponent(username), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ref: document.referrer }) })
+        .then((r) => r.json()).then((r) => { if (r.counted && d.profile.views) $('views').textContent = '👁 ' + (d.views + 1).toLocaleString(); }).catch(() => {});
+    }).catch(() => { document.body.textContent = 'Could not load this page.'; });
+  }
+})();
+</script>
+</body>
+</html>
