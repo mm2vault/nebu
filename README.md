@@ -38,6 +38,23 @@ Ortam değişkenleri:
 - Değiştirici API çağrıları JSON zorunlu (basit CSRF koruması), giriş ve kayıt için hız sınırı var
 - Üretimde HTTPS kullan ve veritabanı klasörünü yedekle
 
+## Operasyon
+
+- `GET /healthz`: sağlık kontrolü (`{"ok":true,"schema":1}`), Render health check bunu kullanır
+- `GET /api/export`: giriş yapmış kullanıcının tüm verisi JSON olarak (dashboard > Overview > "Download my data")
+- Veritabanı şeması `PRAGMA user_version` ile sürümlenir. Şemayı değiştirmek için `server.js` içindeki `MIGRATIONS` dizisine yeni bir giriş **ekle**, eskileri düzenleme
+- SIGTERM/SIGINT'te sunucu açık istekleri bitirip veritabanını temiz kapatır
+
+### Render'da kalıcı veri
+
+SQLite dosyası diskte durur. Render ücretsiz planında disk **geçici**dir: her deploy ve yeniden başlatmada veriler silinir. Kalıcı olması için:
+
+1. Servisi `starter` veya üstü bir plana al
+2. Servise bir disk ekle, mount yolu `/var/data`
+3. `DATA_DIR=/var/data` ortam değişkenini ver
+
+Hepsi `render.yaml` dosyasında tanımlı (Blueprint ile yeni servis oluşturursan otomatik gelir).
+
 ## Yapı
 
 ```

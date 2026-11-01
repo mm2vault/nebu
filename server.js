@@ -9,8 +9,11 @@ const PORT = process.env.PORT || 3000;
 const DATA_DIR = process.env.DATA_DIR || path.join(__dirname, 'data');
 fs.mkdirSync(DATA_DIR, { recursive: true });
 const db = new DatabaseSync(path.join(DATA_DIR, 'nebu.db'));
-db.exec(`
-PRAGMA journal_mode = WAL;
+db.exec('PRAGMA journal_mode = WAL;');
+// Each migration runs once, in order. The applied count is stored in PRAGMA user_version.
+// To change the schema later, append a new entry; never edit an old one.
+const MIGRATIONS = [
+`
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   username TEXT NOT NULL UNIQUE,
@@ -52,7 +55,18 @@ CREATE TABLE IF NOT EXISTS sessions (
   user_id INTEGER NOT NULL,
   expires INTEGER NOT NULL
 );
-`);
+`
+];
+function migrate() {
+  let v = db.prepare('PRAGMA user_version').get().user_version;
+  for (; v < MIGRATIONS.length; v++) {
+    db.exec('BEGIN');
+    try { db.exec(MIGRATIONS[v]); db.exec(`PRAGMA user_version = ${v + 1}`); db.exec('COMMIT'); }
+    catch (e) { db.exec('ROLLBACK'); throw e; }
+  }
+  return v;
+}
+const SCHEMA_VERSION = migrate();
 
 // ---------- helpers ----------
 const RESERVED = new Set(['api', 'go', 'login', 'signup', 'dashboard', 'static', 'assets', 'admin', 'app',
@@ -408,6 +422,29 @@ app.get('/api/analytics', need, (req, res) => {
   });
 });
 
+// ---------- ops ----------
+app.get('/healthz', (req, res) => {
+  try {
+    db.prepare('SELECT 1').get();
+    res.json({ ok: true, schema: SCHEMA_VERSION, uptime: Math.round(process.uptime()) });
+  } catch { res.status(503).json({ ok: false }); }
+});
+// Everything the platform stores about the signed-in user (no password hash, no session tokens).
+app.get('/api/export', need, (req, res) => {
+  const uid = req.user.id;
+  const out = {
+    exportedAt: new Date().toISOString(),
+    account: { uid, username: req.user.username, email: req.user.email, createdAt: new Date(req.user.created_at).toISOString() },
+    profile: parseProfile(req.user),
+    links: db.prepare('SELECT id, title, url, position, hidden, pinned, clicks FROM links WHERE user_id = ? ORDER BY position, id').all(uid),
+    views: db.prepare('SELECT ts, ref, device FROM views WHERE user_id = ? ORDER BY ts').all(uid),
+    clicks: db.prepare('SELECT link_id, ts FROM clicks WHERE user_id = ? ORDER BY ts').all(uid)
+  };
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', `attachment; filename="nebu-${req.user.username}-export.json"`);
+  res.end(JSON.stringify(out, null, 2));
+});
+
 // ---------- pages ----------
 const pub = path.join(__dirname, 'public');
 app.use(express.static(pub, { extensions: ['html'], maxAge: '1h' }));
@@ -425,5 +462,13 @@ app.use((err, req, res, next) => { // eslint-disable-line
   res.status(err.status || 500).json({ error: err.status === 400 ? 'Bad request' : 'Server error' });
 });
 
-if (require.main === module) app.listen(PORT, () => console.log(`Nebu running on http://localhost:${PORT}`));
+if (require.main === module) {
+  const server = app.listen(PORT, () => console.log(`Nebu running on http://localhost:${PORT} (schema v${SCHEMA_VERSION})`));
+  const stop = () => { // let in-flight requests finish, then close the DB cleanly (flushes the WAL)
+    server.close(() => { try { db.close(); } catch { /* already closed */ } process.exit(0); });
+    setTimeout(() => process.exit(0), 5000).unref();
+  };
+  process.on('SIGTERM', stop);
+  process.on('SIGINT', stop);
+}
 module.exports = app;
