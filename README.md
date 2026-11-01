@@ -45,9 +45,34 @@ Ortam değişkenleri:
 - Veritabanı şeması `PRAGMA user_version` ile sürümlenir. Şemayı değiştirmek için `server.js` içindeki `MIGRATIONS` dizisine yeni bir giriş **ekle**, eskileri düzenleme
 - SIGTERM/SIGINT'te sunucu açık istekleri bitirip veritabanını temiz kapatır
 
-### Render'da kalıcı veri
+### Otomatik GitHub yedeği (diski olmayan hosting için)
 
-SQLite dosyası diskte durur. Render ücretsiz planında disk **geçici**dir: her deploy ve yeniden başlatmada veriler silinir. Kalıcı olması için:
+Hesaplar, linkler ve istatistikler değişince **şifrelenmiş** bir snapshot özel bir GitHub deposuna yazılır; açılışta veritabanı boşsa son snapshot geri yüklenir. Böylece Render ücretsiz planında bile veriler deploy ve yeniden başlatmalardan sonra geri gelir.
+
+Kurulum:
+
+1. **Özel (private)** boş bir depo aç, ör. `mm2vault/nebu-data`. Public olmamalı.
+2. GitHub > Settings > Developer settings > Fine-grained tokens: sadece bu depoya erişen, **Contents: Read and write** izinli bir token üret.
+3. Sunucuya ortam değişkenleri:
+
+| Değişken | Açıklama |
+|---|---|
+| `SNAPSHOT_REPO` | `kullanici/depo`, ör. `mm2vault/nebu-data` |
+| `GITHUB_TOKEN` | 2. adımdaki token (sadece Render ortam değişkeni, koda yazma) |
+| `SNAPSHOT_KEY` | Uzun rastgele bir parola. Snapshot AES-256-GCM ile bununla şifrelenir. **Kaybedersen yedek okunamaz**, bir yere de kaydet |
+| `SNAPSHOT_INTERVAL_MS` | İsteğe bağlı, varsayılan `120000` (en fazla 2 dakikada bir yazar) |
+
+Bilmen gerekenler:
+- Kapanırken (deploy/SIGTERM) son bir snapshot yazılır. Ani çökmede en fazla son aralıktaki değişiklikler kaybolur.
+- Oturumlar yedeklenmez, geri yüklemeden sonra herkes yeniden giriş yapar.
+- Geri yükleme başarısız olursa (yanlış anahtar, GitHub erişilemiyor, depo yok) sunucu **bilerek başlamaz**, boş bir veritabanı iyi yedeğin üstüne yazılmasın diye.
+- Yalnızca **tek sunucu örneği** için tasarlandı. Her snapshot repoda bir commit olur, depo zamanla büyür.
+- Durum `/healthz` içinde: `backup.lastSync`, `backup.lastError`.
+- Ciddi trafik için gerçek bir veritabanı (Postgres) doğru çözümdür, bu bir ara çözümdür.
+
+### Render'da kalıcı disk (alternatif)
+
+SQLite dosyası diskte durur. Render ücretsiz planında disk **geçici**dir: her deploy ve yeniden başlatmada veriler silinir. Yedek yerine diski kalıcı yapmak için:
 
 1. Servisi `starter` veya üstü bir plana al
 2. Servise bir disk ekle, mount yolu `/var/data`

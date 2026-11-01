@@ -1,6 +1,6 @@
-# Render Blueprint for Nebu.
-# The SQLite database needs a persistent disk, and disks are only available on paid plans
-# (starter or higher). On the free plan the database is wiped on every deploy/restart.
+# Render Blueprint for Nebu (paid plan with a persistent disk).
+# On the free plan there is no disk: remove the `disk` block and DATA_DIR, keep plan: free,
+# and use the encrypted GitHub snapshot backup instead (see README, SNAPSHOT_* variables).
 services:
   - type: web
     name: nebu-bio
@@ -20,6 +20,13 @@ services:
         value: "1"
       - key: DATA_DIR
         value: /var/data     # must match the disk mount path below
+      # Optional GitHub snapshot backup (works with or without a disk). Secrets are set in the dashboard.
+      - key: SNAPSHOT_REPO
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+      - key: SNAPSHOT_KEY
+        sync: false
     disk:
       name: nebu-data
       mountPath: /var/data

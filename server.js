@@ -67,6 +67,7 @@ function migrate() {
   return v;
 }
 const SCHEMA_VERSION = migrate();
+const backup = require('./backup.js')(db); // encrypted GitHub snapshots, see backup.js
 
 // ---------- helpers ----------
 const RESERVED = new Set(['api', 'go', 'login', 'signup', 'dashboard', 'static', 'assets', 'admin', 'app',
@@ -228,6 +229,11 @@ app.use((req, res, next) => {
   next();
 });
 app.use(express.json({ limit: '50kb' }));
+// Anything that can change stored data (writes, link clicks) schedules a backup snapshot.
+app.use((req, res, next) => {
+  if (req.method !== 'GET' || req.path.startsWith('/go/')) res.on('finish', () => { if (res.statusCode < 500) backup.markDirty(); });
+  next();
+});
 
 app.use((req, res, next) => {
   const tok = parseCookies(req).nebu_session;
@@ -426,7 +432,7 @@ app.get('/api/analytics', need, (req, res) => {
 app.get('/healthz', (req, res) => {
   try {
     db.prepare('SELECT 1').get();
-    res.json({ ok: true, schema: SCHEMA_VERSION, uptime: Math.round(process.uptime()) });
+    res.json({ ok: true, schema: SCHEMA_VERSION, uptime: Math.round(process.uptime()), backup: backup.status() });
   } catch { res.status(503).json({ ok: false }); }
 });
 // Everything the platform stores about the signed-in user (no password hash, no session tokens).
@@ -463,12 +469,20 @@ app.use((err, req, res, next) => { // eslint-disable-line
 });
 
 if (require.main === module) {
-  const server = app.listen(PORT, () => console.log(`Nebu running on http://localhost:${PORT} (schema v${SCHEMA_VERSION})`));
-  const stop = () => { // let in-flight requests finish, then close the DB cleanly (flushes the WAL)
-    server.close(() => { try { db.close(); } catch { /* already closed */ } process.exit(0); });
-    setTimeout(() => process.exit(0), 5000).unref();
-  };
-  process.on('SIGTERM', stop);
-  process.on('SIGINT', stop);
+  (async () => {
+    // Restore from the GitHub snapshot BEFORE serving, and refuse to start if that is unsafe,
+    // otherwise an empty database could later overwrite a good backup.
+    try {
+      const r = await backup.restore();
+      if (backup.enabled) console.log('Backup:', r.restored ? `restored ${r.users} user(s) from GitHub snapshot` : r.reason);
+    } catch (e) { console.error('Backup restore failed, not starting:', e.message); process.exit(1); }
+    const server = app.listen(PORT, () => console.log(`Nebu running on http://localhost:${PORT} (schema v${SCHEMA_VERSION}, backup ${backup.enabled ? 'on' : 'off'})`));
+    const stop = () => { // finish in-flight requests, push a last snapshot, then close the DB cleanly
+      server.close(() => backup.flush().finally(() => { try { db.close(); } catch { /* already closed */ } process.exit(0); }));
+      setTimeout(() => process.exit(0), 15000).unref();
+    };
+    process.on('SIGTERM', stop);
+    process.on('SIGINT', stop);
+  })();
 }
 module.exports = app;
